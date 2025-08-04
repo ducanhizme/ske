@@ -1,40 +1,217 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/pages/api-reference/create-next-app).
+# SKE - Next.js Skeleton Application
+
+A Next.js skeleton application with client-side rendering (CSR) and modular architecture designed for scalable web applications.
+
+## Architecture Overview
+
+This application follows a bottom-up architecture with clear separation of concerns across multiple layers:
+
+```
+src/
+├── components/
+│   ├── ui/                        # Basic UI components
+│   ├── common/                    # Shared components
+│   └── features/                  # Business logic components
+├── context/                       # Global context providers
+├── services/                      # Global services
+├── hooks/                         # Global custom hooks
+├── utils/                         # Global utilities
+├── types/                         # Global type definitions
+└── styles/                        # Global styles
+```
+
+## Key Features
+
+- **Client-Side Rendering Only**: Configured for static export with no SSR
+- **Modular Component Architecture**: Organized in layers from basic UI to business features
+- **TypeScript Support**: Full type safety with strict mode enabled
+- **Global State Management**: Context-based state management
+- **Service Layer**: Abstracted API, storage, and validation services
+- **Error Boundaries**: Comprehensive error handling
+- **Responsive Design**: Built with Tailwind CSS
+
+## Component Layers
+
+### 1. UI Components Layer (`src/components/ui/`)
+Basic reusable UI components:
+- **Button**: Multiple variants (primary, secondary, success, warning, error)
+- **Input**: Text inputs with validation states
+- **Select**: Dropdown selections
+- **Card**: Content containers
+- **Table**: Data tables with custom renderers
+
+### 2. Common Components Layer (`src/components/common/`)
+Shared application components:
+- **Layout**: Main application layout with header, sidebar, and footer
+- **Loading**: Loading states and spinners
+- **ErrorBoundary**: Error handling and recovery
+
+### 3. Features Layer (`src/components/features/`)
+Business logic components organized by domain (ready for expansion)
+
+## Global Services
+
+### API Service (`src/services/api/`)
+- RESTful API client with error handling
+- Type-safe request/response handling
+- Centralized API configuration
+
+### Storage Service (`src/services/storage/`)
+- Local and session storage abstractions
+- JSON serialization/deserialization
+- Error handling for storage operations
+
+### Validation Service (`src/services/validation/`)
+- Field-level validation rules
+- Object validation
+- Custom validation support
+
+## Context Providers
+
+### Auth Context (`src/context/AuthContext/`)
+- User authentication state
+- Login/logout functionality
+- Protected route handling
 
 ## Getting Started
 
-First, run the development server:
+### Installation
+
+```bash
+npm install
+```
+
+### Development
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to view the application.
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+### Building
 
-[API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+```bash
+npm run build
+```
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) instead of React pages.
+Creates a static export in the `out/` directory.
 
-This project uses [`next/font`](https://nextjs.org/docs/pages/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Linting
 
-## Learn More
+```bash
+npm run lint
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Usage Examples
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn-pages-router) - an interactive Next.js tutorial.
+### Creating a New UI Component
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```typescript
+// src/components/ui/MyComponent/MyComponent.tsx
+import React from 'react';
+import { UIComponentProps } from '@/types';
 
-## Deploy on Vercel
+export interface MyComponentProps extends UIComponentProps {
+  title: string;
+}
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+export const MyComponent: React.FC<MyComponentProps> = ({
+  title,
+  className = '',
+  children,
+  ...props
+}) => {
+  return (
+    <div className={`my-component ${className}`} {...props}>
+      <h3>{title}</h3>
+      {children}
+    </div>
+  );
+};
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/pages/building-your-application/deploying) for more details.
+### Using the API Service
+
+```typescript
+import { apiService } from '@/services';
+
+// GET request
+const user = await apiService.get<User>('/api/users/1');
+
+// POST request
+const newUser = await apiService.post<User>('/api/users', userData);
+```
+
+### Using Context
+
+```typescript
+import { useAuth } from '@/context';
+
+const MyComponent = () => {
+  const { user, login, logout, isLoading } = useAuth();
+  
+  if (isLoading) return <Loading />;
+  
+  return (
+    <div>
+      {user ? (
+        <button onClick={logout}>Logout</button>
+      ) : (
+        <button onClick={() => login(credentials)}>Login</button>
+      )}
+    </div>
+  );
+};
+```
+
+## Configuration
+
+### Next.js Configuration
+
+The application is configured for static export:
+
+```typescript
+// next.config.ts
+const nextConfig: NextConfig = {
+  output: 'export',
+  trailingSlash: true,
+  images: { unoptimized: true },
+};
+```
+
+### TypeScript Configuration
+
+Path aliases are configured for clean imports:
+
+```json
+{
+  "baseUrl": "./src",
+  "paths": {
+    "@/*": ["./*"],
+    "@/components/*": ["./components/*"],
+    "@/services/*": ["./services/*"]
+  }
+}
+```
+
+## Best Practices
+
+1. **Component Organization**: Keep components focused and single-responsibility
+2. **Type Safety**: Use TypeScript interfaces for all props and data structures
+3. **Error Handling**: Wrap components in ErrorBoundary where appropriate
+4. **Performance**: Use React.memo and useMemo for expensive operations
+5. **Testing**: Write unit tests for utilities and components
+6. **Accessibility**: Follow WCAG guidelines for UI components
+
+## Contributing
+
+1. Follow the established folder structure
+2. Add type definitions for new interfaces
+3. Include error handling in services
+4. Write tests for new functionality
+5. Update documentation for new features
+
+## License
+
+This project is licensed under the MIT License.
